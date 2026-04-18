@@ -285,9 +285,9 @@ export function SolitaireGame({ chainData }: Props) {
         <div
           style={{
             position: 'fixed',
-            left: ghost.x - CARD_W / 2,
+            left: ghost.x - cardW / 2,
             top: ghost.y - CARD_H / 2,
-            width: CARD_W,
+            width: cardW,
             height: CARD_H + (ghost.cards.length - 1) * TABLEAU_OVERLAP,
             pointerEvents: 'none',
             zIndex: 1000,
@@ -296,7 +296,7 @@ export function SolitaireGame({ chainData }: Props) {
           {ghost.cards.map((card, i) => (
             <div
               key={card.id}
-              style={{ position: 'absolute', top: i * TABLEAU_OVERLAP, width: CARD_W, height: CARD_H, opacity: 0.9 }}
+              style={{ position: 'absolute', top: i * TABLEAU_OVERLAP, width: cardW, height: CARD_H, opacity: 0.9 }}
             >
               <CardView card={card} />
             </div>
@@ -321,7 +321,7 @@ export function SolitaireGame({ chainData }: Props) {
       {/* Top row */}
       <div className="flex items-start" style={{ gap: COL_GAP }}>
         {/* Stock */}
-        <div style={{ width: CARD_W, height: CARD_H, flexShrink: 0 }}>
+        <div style={{ width: cardW, height: CARD_H, flexShrink: 0 }}>
           {game.stock.length > 0 ? (
             <CardView card={{ id: 'stock', suit: 'coral', rank: 1, faceUp: false }} onClick={handleStockClick} />
           ) : (
@@ -330,10 +330,10 @@ export function SolitaireGame({ chainData }: Props) {
         </div>
 
         {/* Waste */}
-        <div style={{ width: CARD_W, height: CARD_H, flexShrink: 0 }}>
+        <div style={{ width: cardW, height: CARD_H, flexShrink: 0 }}>
           {game.waste.length > 0 ? (
             <div
-              style={{ width: CARD_W, height: CARD_H, opacity: isDraggedWaste ? 0.25 : 1 }}
+              style={{ width: cardW, height: CARD_H, opacity: isDraggedWaste ? 0.25 : 1 }}
               onPointerDown={e => startDrag(
                 e,
                 { type: 'waste' },
@@ -358,7 +358,7 @@ export function SolitaireGame({ chainData }: Props) {
           <div
             key={suit}
             ref={el => { foundationRefs.current[fi] = el; }}
-            style={{ width: CARD_W, height: CARD_H, flexShrink: 0 }}
+            style={{ width: cardW, height: CARD_H, flexShrink: 0 }}
           >
             {game.foundations[fi].length > 0 ? (
               <CardView
@@ -380,7 +380,7 @@ export function SolitaireGame({ chainData }: Props) {
             <div
               key={ci}
               ref={el => { tableauRefs.current[ci] = el; }}
-              style={{ width: CARD_W, height: colHeight, flexShrink: 0, position: 'relative' }}
+              style={{ width: cardW, height: colHeight, flexShrink: 0, position: 'relative' }}
             >
               {col.length === 0 ? (
                 <EmptyPile onClick={() => handleEmptyTableauClick(ci)} />
@@ -397,7 +397,7 @@ export function SolitaireGame({ chainData }: Props) {
                       style={{
                         position: 'absolute',
                         top: idx * TABLEAU_OVERLAP,
-                        width: CARD_W,
+                        width: cardW,
                         height: CARD_H,
                         zIndex: idx,
                         opacity: isDimmed ? 0.25 : 1,
