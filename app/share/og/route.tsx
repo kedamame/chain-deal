@@ -16,7 +16,7 @@ function labelColor(label: string) {
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const streak = Math.max(1, parseInt(searchParams.get('streak') ?? '1', 10));
+  const clears = Math.max(1, parseInt(searchParams.get('clears') ?? '1', 10));
   const label  = searchParams.get('label') ?? 'CALM';
   const moves  = searchParams.get('moves') ?? '?';
   const date   = searchParams.get('date') ?? '';
@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
         </div>
 
         {/* Main content */}
-        <div style={{ display: 'flex', flex: 1, padding: 56, gap: 0 }}>
+        <div style={{ display: 'flex', flex: 1, paddingLeft: 56, paddingRight: 56, paddingTop: 56, paddingBottom: 0 }}>
 
           {/* Left: YOU WIN + moves + date */}
           <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'center', gap: 0 }}>
@@ -71,13 +71,13 @@ export async function GET(req: NextRequest) {
           {/* Vertical divider */}
           <div style={{ width: 1, background: 'rgba(255,255,255,0.08)', marginLeft: 48, marginRight: 48, display: 'flex', alignSelf: 'stretch' }} />
 
-          {/* Right: Streak */}
+          {/* Right: Clear count */}
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-end', width: 280, gap: 0 }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 6, display: 'flex', whiteSpace: 'nowrap', marginBottom: 12 }}>
-              DAY STREAK
+              TOTAL CLEARS
             </div>
             <div style={{ fontSize: 160, fontWeight: 900, color: accent, letterSpacing: -8, lineHeight: 0.85, display: 'flex' }}>
-              {streak}
+              {clears}
             </div>
             <div style={{ display: 'flex', gap: 6, marginTop: 20 }}>
               {[CORAL, AMBER, BLUE, GREEN].map((c, i) => (
@@ -93,7 +93,7 @@ export async function GET(req: NextRequest) {
         </div>
 
         {/* Bottom bar */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingLeft: 56, paddingRight: 56, paddingBottom: 32 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingLeft: 56, paddingRight: 56, paddingBottom: 32, paddingTop: 24 }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.12)', letterSpacing: 6, display: 'flex', whiteSpace: 'nowrap' }}>
             POWERED BY BASE
           </div>

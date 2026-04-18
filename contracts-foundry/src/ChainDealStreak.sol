@@ -1,27 +1,25 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-contract ChainDealStreak {
+contract ChainDealClears {
     mapping(address => uint256) public lastClearDay;
-    mapping(address => uint256) public streak;
+    mapping(address => uint256) public totalClears;
 
-    event DayCleared(address indexed player, uint256 day, uint256 newStreak);
+    event DayCleared(address indexed player, uint256 day, uint256 total);
 
     /// @notice Record today's clear. Reverts if already recorded today.
     function clearDay() external {
         uint256 today = block.timestamp / 86400;
-        uint256 last  = lastClearDay[msg.sender];
-        require(last != today, "Already cleared today");
+        require(lastClearDay[msg.sender] != today, "Already cleared today");
 
-        uint256 next = (last + 1 == today) ? streak[msg.sender] + 1 : 1;
-        streak[msg.sender]       = next;
+        totalClears[msg.sender] += 1;
         lastClearDay[msg.sender] = today;
 
-        emit DayCleared(msg.sender, today, next);
+        emit DayCleared(msg.sender, today, totalClears[msg.sender]);
     }
 
-    /// @notice Returns (streak, lastClearDay) for a player.
-    function getStreak(address player) external view returns (uint256, uint256) {
-        return (streak[player], lastClearDay[player]);
+    /// @notice Returns (totalClears, lastClearDay) for a player.
+    function getClears(address player) external view returns (uint256, uint256) {
+        return (totalClears[player], lastClearDay[player]);
     }
 }

@@ -11,7 +11,7 @@ export const STREAK_ABI = [
     outputs: [],
   },
   {
-    name: 'getStreak',
+    name: 'getClears',
     type: 'function',
     stateMutability: 'view',
     inputs: [{ name: 'player', type: 'address' }],

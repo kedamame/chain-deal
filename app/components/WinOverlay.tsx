@@ -20,30 +20,27 @@ export function WinOverlay({ moves, label, date, onReset }: Props) {
   const { address } = useAccount();
   const [shared, setShared] = useState(false);
 
-  // Read current streak + lastClearDay
-  const { data: streakData, refetch } = useReadContract({
+  const { data: clearsData, refetch } = useReadContract({
     address: STREAK_CONTRACT_ADDRESS,
     abi: STREAK_ABI,
-    functionName: 'getStreak',
+    functionName: 'getClears',
     args: address ? [address] : undefined,
     query: { enabled: !!address && CONTRACT_ENABLED },
   });
 
-  const onChainStreak = streakData ? Number(streakData[0]) : 0;
-  const lastDay       = streakData ? Number(streakData[1]) : 0;
+  const onChainClears = clearsData ? Number(clearsData[0]) : 0;
+  const lastDay       = clearsData ? Number(clearsData[1]) : 0;
   const alreadyDone   = lastDay === TODAY_DAY;
-  const pendingStreak = alreadyDone ? onChainStreak : onChainStreak + 1;
+  const pendingClears = alreadyDone ? onChainClears : onChainClears + 1;
 
-  // Write contract
   const { writeContract, data: txHash, isPending, error: writeError } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
 
-  // Refetch streak after confirmation
   useEffect(() => {
     if (isConfirmed) refetch();
   }, [isConfirmed, refetch]);
 
-  const displayStreak = (isConfirmed || alreadyDone) ? onChainStreak : pendingStreak;
+  const displayClears = (isConfirmed || alreadyDone) ? onChainClears : pendingClears;
 
   const handleRecord = () => {
     writeContract({
@@ -54,9 +51,9 @@ export function WinOverlay({ moves, label, date, onReset }: Props) {
   };
 
   const handleShare = async () => {
-    const streak = displayStreak;
-    const text = `Cleared today's CHAIN DEAL deck in ${moves} moves! ${streak} day streak on Base.`;
-    const shareUrl = `${APP_URL}/share?addr=${address}&streak=${streak}&label=${label}&moves=${moves}&date=${date}`;
+    const clears = displayClears;
+    const text = `Cleared today's CHAIN DEAL deck in ${moves} moves! ${clears} total clears on Base.`;
+    const shareUrl = `${APP_URL}/share?addr=${address}&clears=${clears}&label=${label}&moves=${moves}&date=${date}`;
     try {
       await sdk.actions.composeCast({ text, embeds: [shareUrl] });
       setShared(true);
@@ -73,12 +70,10 @@ export function WinOverlay({ moves, label, date, onReset }: Props) {
     <div className="fixed inset-0 bg-black/85 flex items-center justify-center z-50">
       <div className="text-center px-8 w-full max-w-sm">
 
-        {/* YOU WIN */}
         <div className="text-6xl font-black text-white tracking-tighter mb-1">YOU WIN</div>
         <div className="text-white/40 text-sm mb-1">{moves} MOVES</div>
         <div className="text-white/30 text-xs mb-8 tracking-widest">TODAY&apos;S DECK: {label}</div>
 
-        {/* Streak area */}
         {CONTRACT_ENABLED && address && (
           <div className="mb-8">
             {(isConfirmed || alreadyDone) ? (
@@ -87,9 +82,9 @@ export function WinOverlay({ moves, label, date, onReset }: Props) {
                   className="text-7xl font-black tracking-tighter leading-none"
                   style={{ color: label === 'WILD' ? '#F4654A' : label === 'ACTIVE' ? '#F5B340' : '#4DB87A' }}
                 >
-                  {displayStreak}
+                  {displayClears}
                 </div>
-                <div className="text-white/40 text-xs font-bold tracking-widest">DAY STREAK</div>
+                <div className="text-white/40 text-xs font-bold tracking-widest">TOTAL CLEARS</div>
                 {alreadyDone && !isConfirmed && (
                   <div className="text-white/25 text-[10px] tracking-widest mt-1">ALREADY RECORDED TODAY</div>
                 )}
@@ -97,7 +92,7 @@ export function WinOverlay({ moves, label, date, onReset }: Props) {
             ) : (
               <div className="flex flex-col items-center gap-2">
                 <div className="text-white/30 text-xs tracking-widest">
-                  {isRecording ? 'RECORDING...' : `CURRENT STREAK: ${onChainStreak}`}
+                  {isRecording ? 'RECORDING...' : `TOTAL CLEARS: ${onChainClears}`}
                 </div>
                 {writeError && (
                   <div className="text-[#F4654A] text-[10px] tracking-wide">TX FAILED</div>
@@ -107,7 +102,6 @@ export function WinOverlay({ moves, label, date, onReset }: Props) {
           </div>
         )}
 
-        {/* Actions */}
         <div className="flex flex-col gap-3 items-center">
           {canRecord && (
             <button
@@ -120,7 +114,7 @@ export function WinOverlay({ moves, label, date, onReset }: Props) {
                 opacity: isRecording ? 0.6 : 1,
               }}
             >
-              {isRecording ? 'RECORDING...' : 'RECORD STREAK'}
+              {isRecording ? 'RECORDING...' : 'RECORD CLEAR'}
             </button>
           )}
 

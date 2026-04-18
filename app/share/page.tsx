@@ -6,22 +6,22 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://chain-deal.vercel.ap
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams: Promise<{ addr?: string; streak?: string; label?: string; moves?: string; date?: string }>;
+  searchParams: Promise<{ addr?: string; clears?: string; label?: string; moves?: string; date?: string }>;
 }): Promise<Metadata> {
   const p = await searchParams;
   const qs = new URLSearchParams({
     addr:   p.addr   ?? '',
-    streak: p.streak ?? '1',
+    clears: p.clears ?? '1',
     label:  p.label  ?? 'CALM',
     moves:  p.moves  ?? '?',
     date:   p.date   ?? '',
   }).toString();
 
-  const streak = p.streak ?? '1';
+  const clears = p.clears ?? '1';
   const label  = p.label  ?? 'CALM';
 
   return {
-    title: `${streak} day streak on CHAIN DEAL`,
+    title: `${clears} clears on CHAIN DEAL`,
     description: `Cleared today's ${label} deck. Play daily solitaire on Base.`,
     openGraph: {
       images: [`${APP_URL}/share/og?${qs}`],
