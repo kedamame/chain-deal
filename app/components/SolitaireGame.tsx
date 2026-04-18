@@ -43,9 +43,7 @@ interface GhostState {
   y: number;
 }
 
-const CARD_W = 52;
-const CARD_H = 72;
-const TABLEAU_OVERLAP = 20;
+const COL_GAP = 4;  // px between tableau columns
 const DRAG_THRESHOLD = 8;
 
 export function SolitaireGame({ chainData }: Props) {
@@ -53,7 +51,12 @@ export function SolitaireGame({ chainData }: Props) {
   const [selection, setSelection] = useState<Selection>(null);
   const [won, setWon] = useState(false);
   const [ghost, setGhost] = useState<GhostState | null>(null);
+  const [cardW, setCardW] = useState(48);
 
+  const CARD_H = Math.round(cardW * (72 / 52));
+  const TABLEAU_OVERLAP = Math.round(cardW * 0.38);
+
+  const containerRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<DragRef | null>(null);
   const lastTapRef = useRef<{ key: string; time: number } | null>(null);
   const gameRef = useRef(game);
@@ -61,6 +64,20 @@ export function SolitaireGame({ chainData }: Props) {
 
   const foundationRefs = useRef<(HTMLDivElement | null)[]>([null, null, null, null]);
   const tableauRefs = useRef<(HTMLDivElement | null)[]>([null, null, null, null, null, null, null]);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const w = entry.contentRect.width;
+      // 7 cols + 6 gaps, subtract px-2 (8px each side)
+      const available = w - 16;
+      const computed = Math.floor((available - 6 * COL_GAP) / 7);
+      setCardW(Math.max(36, Math.min(52, computed)));
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const update = useCallback((next: GameState) => {
     setGame(next);
@@ -259,6 +276,7 @@ export function SolitaireGame({ chainData }: Props) {
 
   return (
     <div
+      ref={containerRef}
       className="flex flex-col gap-3 w-full max-w-[400px] mx-auto px-2"
       style={{ touchAction: 'none' }}
     >
@@ -301,7 +319,7 @@ export function SolitaireGame({ chainData }: Props) {
       </div>
 
       {/* Top row */}
-      <div className="flex items-start gap-1.5">
+      <div className="flex items-start" style={{ gap: COL_GAP }}>
         {/* Stock */}
         <div style={{ width: CARD_W, height: CARD_H, flexShrink: 0 }}>
           {game.stock.length > 0 ? (
@@ -355,7 +373,7 @@ export function SolitaireGame({ chainData }: Props) {
       </div>
 
       {/* Tableau */}
-      <div className="flex gap-1.5 items-start">
+      <div className="flex items-start" style={{ gap: COL_GAP }}>
         {game.tableau.map((col, ci) => {
           const colHeight = col.length === 0 ? CARD_H : CARD_H + (col.length - 1) * TABLEAU_OVERLAP;
           return (
