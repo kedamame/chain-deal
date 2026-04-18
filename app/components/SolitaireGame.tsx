@@ -10,6 +10,7 @@ import {
 import { SUITS, SUIT_SYMBOL } from '@/app/lib/deck';
 import { ChainData, getLabelColor } from '@/app/lib/types';
 import { CardView, EmptyPile } from './CardView';
+import { WinOverlay } from './WinOverlay';
 
 interface Props { chainData: ChainData; }
 
@@ -426,19 +427,12 @@ export function SolitaireGame({ chainData }: Props) {
 
       {/* Win overlay */}
       {won && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-          <div className="text-center px-8">
-            <div className="text-6xl font-black text-white tracking-tighter mb-2">YOU WIN</div>
-            <div className="text-white/40 text-sm mb-1">{game.moves} MOVES</div>
-            <div className="text-white/40 text-xs mb-8">TODAY&apos;S DECK: {chainData.label}</div>
-            <button
-              onClick={resetGame}
-              className="px-6 py-3 rounded-full font-black text-sm bg-white text-black hover:bg-white/90 transition-all"
-            >
-              PLAY AGAIN
-            </button>
-          </div>
-        </div>
+        <WinOverlay
+          moves={game.moves}
+          label={chainData.label}
+          date={chainData.today}
+          onReset={resetGame}
+        />
       )}
     </div>
   );
