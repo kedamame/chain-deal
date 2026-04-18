@@ -1,44 +1,164 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import type { Card } from '@/app/lib/deck';
 import {
   GameState, initGame, drawFromStock, moveWasteToFoundation,
   moveWasteToTableau, moveTableauToFoundation, moveTableauToTableau,
   autoMoveToFoundations,
 } from '@/app/lib/solitaire';
-import { SUITS, SUIT_COLORS, SUIT_SYMBOL } from '@/app/lib/deck';
+import { SUITS, SUIT_SYMBOL } from '@/app/lib/deck';
 import { ChainData, getLabelColor } from '@/app/lib/types';
 import { CardView, EmptyPile } from './CardView';
 
-interface Props {
-  chainData: ChainData;
-}
+interface Props { chainData: ChainData; }
 
 type Selection =
   | { source: 'waste' }
   | { source: 'tableau'; col: number; cardIdx: number }
   | null;
 
+type DragSource =
+  | { type: 'waste' }
+  | { type: 'tableau'; col: number; cardIdx: number };
+
+interface DragRef {
+  source: DragSource;
+  cards: Card[];
+  startX: number;
+  startY: number;
+  offsetX: number;
+  offsetY: number;
+  active: boolean;
+  clickFn: () => void;
+}
+
+interface GhostState {
+  source: DragSource;
+  cards: Card[];
+  offsetX: number;
+  offsetY: number;
+  x: number;
+  y: number;
+}
+
 const CARD_W = 52;
 const CARD_H = 72;
 const TABLEAU_OVERLAP = 20;
+const DRAG_THRESHOLD = 8;
 
 export function SolitaireGame({ chainData }: Props) {
   const [game, setGame] = useState<GameState>(() => initGame(chainData.seed));
   const [selection, setSelection] = useState<Selection>(null);
   const [won, setWon] = useState(false);
+  const [ghost, setGhost] = useState<GhostState | null>(null);
+
+  const dragRef = useRef<DragRef | null>(null);
+  const gameRef = useRef(game);
+  gameRef.current = game;
+
+  const foundationRefs = useRef<(HTMLDivElement | null)[]>([null, null, null, null]);
+  const tableauRefs = useRef<(HTMLDivElement | null)[]>([null, null, null, null, null, null, null]);
 
   const update = useCallback((next: GameState) => {
     setGame(next);
     if (next.won) setWon(true);
   }, []);
 
-  const resetGame = () => {
-    setGame(initGame(chainData.seed));
-    setSelection(null);
-    setWon(false);
+  const getDropTarget = useCallback((x: number, y: number) => {
+    for (let i = 0; i < 4; i++) {
+      const el = foundationRefs.current[i];
+      if (!el) continue;
+      const r = el.getBoundingClientRect();
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom)
+        return { type: 'foundation' as const, index: i };
+    }
+    for (let i = 0; i < 7; i++) {
+      const el = tableauRefs.current[i];
+      if (!el) continue;
+      const r = el.getBoundingClientRect();
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom)
+        return { type: 'tableau' as const, col: i };
+    }
+    return null;
+  }, []);
+
+  useEffect(() => {
+    const onMove = (e: PointerEvent) => {
+      const ds = dragRef.current;
+      if (!ds) return;
+      const dx = e.clientX - ds.startX;
+      const dy = e.clientY - ds.startY;
+      const nowActive = ds.active || Math.hypot(dx, dy) > DRAG_THRESHOLD;
+      dragRef.current = { ...ds, active: nowActive };
+      if (nowActive) {
+        setGhost({
+          source: ds.source,
+          cards: ds.cards,
+          offsetX: ds.offsetX,
+          offsetY: ds.offsetY,
+          x: e.clientX,
+          y: e.clientY,
+        });
+      }
+    };
+
+    const onUp = (e: PointerEvent) => {
+      const ds = dragRef.current;
+      if (!ds) return;
+      dragRef.current = null;
+      setGhost(null);
+
+      if (!ds.active) {
+        ds.clickFn();
+        return;
+      }
+
+      setSelection(null);
+      const target = getDropTarget(e.clientX, e.clientY);
+      if (!target) return;
+
+      const g = gameRef.current;
+      if (target.type === 'foundation') {
+        if (ds.source.type === 'waste') update(moveWasteToFoundation(g));
+        else if (ds.source.type === 'tableau') update(moveTableauToFoundation(g, ds.source.col));
+      } else {
+        const col = target.col;
+        if (ds.source.type === 'waste') {
+          const next = moveWasteToTableau(g, col);
+          if (next !== g) update(next);
+        } else if (ds.source.type === 'tableau') {
+          const next = moveTableauToTableau(g, ds.source.col, ds.source.cardIdx, col);
+          if (next !== g) update(next);
+        }
+      }
+    };
+
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+    };
+  }, [update, getDropTarget]);
+
+  const startDrag = (
+    e: React.PointerEvent,
+    source: DragSource,
+    cards: Card[],
+    clickFn: () => void,
+  ) => {
+    e.preventDefault();
+    const rect = e.currentTarget.getBoundingClientRect();
+    dragRef.current = {
+      source, cards, clickFn,
+      startX: e.clientX, startY: e.clientY,
+      offsetX: e.clientX - rect.left, offsetY: e.clientY - rect.top,
+      active: false,
+    };
   };
 
+  // --- Click handlers ---
   const handleStockClick = () => {
     setSelection(null);
     update(drawFromStock(game));
@@ -46,38 +166,26 @@ export function SolitaireGame({ chainData }: Props) {
 
   const handleWasteClick = () => {
     if (game.waste.length === 0) return;
-    if (selection?.source === 'waste') {
-      setSelection(null);
-    } else {
-      setSelection({ source: 'waste' });
-    }
+    setSelection(s => s?.source === 'waste' ? null : { source: 'waste' });
   };
 
   const handleFoundationClick = (fi: number) => {
+    if (selection?.source === 'waste') update(moveWasteToFoundation(game));
+    else if (selection?.source === 'tableau') update(moveTableauToFoundation(game, selection.col));
     setSelection(null);
-    if (selection?.source === 'waste') {
-      update(moveWasteToFoundation(game));
-    } else if (selection?.source === 'tableau') {
-      update(moveTableauToFoundation(game, selection.col));
-    }
   };
 
   const handleTableauClick = (col: number, cardIdx: number) => {
     const card = game.tableau[col][cardIdx];
     if (!card.faceUp) return;
 
-    if (selection === null) {
-      setSelection({ source: 'tableau', col, cardIdx });
-      return;
-    }
+    if (selection === null) { setSelection({ source: 'tableau', col, cardIdx }); return; }
 
     if (selection.source === 'waste') {
       const next = moveWasteToTableau(game, col);
       if (next !== game) { update(next); setSelection(null); return; }
     } else if (selection.source === 'tableau') {
-      if (selection.col === col && selection.cardIdx === cardIdx) {
-        setSelection(null); return;
-      }
+      if (selection.col === col && selection.cardIdx === cardIdx) { setSelection(null); return; }
       const next = moveTableauToTableau(game, selection.col, selection.cardIdx, col);
       if (next !== game) { update(next); setSelection(null); return; }
     }
@@ -94,16 +202,53 @@ export function SolitaireGame({ chainData }: Props) {
     }
   };
 
-  const handleAutoMove = () => {
+  const handleAutoMove = () => { setSelection(null); update(autoMoveToFoundations(game)); };
+
+  const resetGame = () => {
+    setGame(initGame(chainData.seed));
     setSelection(null);
-    update(autoMoveToFoundations(game));
+    setWon(false);
+    dragRef.current = null;
+    setGhost(null);
   };
+
+  const isDraggedWaste = ghost?.source.type === 'waste';
+  const isDraggedTableau = (col: number, cardIdx: number) =>
+    ghost?.source.type === 'tableau' &&
+    ghost.source.col === col &&
+    ghost.source.cardIdx <= cardIdx;
 
   const difficultyStars = Math.round(chainData.difficulty * 5);
   const labelColor = getLabelColor(chainData.label);
 
   return (
-    <div className="flex flex-col gap-3 w-full max-w-[400px] mx-auto px-2">
+    <div
+      className="flex flex-col gap-3 w-full max-w-[400px] mx-auto px-2"
+      style={{ touchAction: 'none' }}
+    >
+      {/* Ghost */}
+      {ghost && (
+        <div
+          style={{
+            position: 'fixed',
+            left: ghost.x - ghost.offsetX,
+            top: ghost.y - ghost.offsetY,
+            width: CARD_W,
+            height: CARD_H + (ghost.cards.length - 1) * TABLEAU_OVERLAP,
+            pointerEvents: 'none',
+            zIndex: 1000,
+          }}
+        >
+          {ghost.cards.map((card, i) => (
+            <div
+              key={card.id}
+              style={{ position: 'absolute', top: i * TABLEAU_OVERLAP, width: CARD_W, height: CARD_H, opacity: 0.9 }}
+            >
+              <CardView card={card} />
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Chain info bar */}
       <div className="flex items-center justify-between px-3 py-2 rounded-lg border border-white/10 bg-white/5">
@@ -119,15 +264,12 @@ export function SolitaireGame({ chainData }: Props) {
         </div>
       </div>
 
-      {/* Top row: stock + waste + spacer + foundations */}
+      {/* Top row */}
       <div className="flex items-start gap-1.5">
         {/* Stock */}
         <div style={{ width: CARD_W, height: CARD_H, flexShrink: 0 }}>
           {game.stock.length > 0 ? (
-            <CardView
-              card={{ id: 'stock', suit: 'coral', rank: 1, faceUp: false }}
-              onClick={handleStockClick}
-            />
+            <CardView card={{ id: 'stock', suit: 'coral', rank: 1, faceUp: false }} onClick={handleStockClick} />
           ) : (
             <EmptyPile onClick={handleStockClick} label="↺" />
           )}
@@ -136,11 +278,20 @@ export function SolitaireGame({ chainData }: Props) {
         {/* Waste */}
         <div style={{ width: CARD_W, height: CARD_H, flexShrink: 0 }}>
           {game.waste.length > 0 ? (
-            <CardView
-              card={game.waste[game.waste.length - 1]}
-              onClick={handleWasteClick}
-              selected={selection?.source === 'waste'}
-            />
+            <div
+              style={{ width: CARD_W, height: CARD_H, opacity: isDraggedWaste ? 0.25 : 1 }}
+              onPointerDown={e => startDrag(
+                e,
+                { type: 'waste' },
+                [game.waste[game.waste.length - 1]],
+                handleWasteClick,
+              )}
+            >
+              <CardView
+                card={game.waste[game.waste.length - 1]}
+                selected={selection?.source === 'waste'}
+              />
+            </div>
           ) : (
             <EmptyPile />
           )}
@@ -150,17 +301,18 @@ export function SolitaireGame({ chainData }: Props) {
 
         {/* Foundations */}
         {SUITS.map((suit, fi) => (
-          <div key={suit} style={{ width: CARD_W, height: CARD_H, flexShrink: 0 }}>
+          <div
+            key={suit}
+            ref={el => { foundationRefs.current[fi] = el; }}
+            style={{ width: CARD_W, height: CARD_H, flexShrink: 0 }}
+          >
             {game.foundations[fi].length > 0 ? (
               <CardView
                 card={game.foundations[fi][game.foundations[fi].length - 1]}
                 onClick={() => handleFoundationClick(fi)}
               />
             ) : (
-              <EmptyPile
-                onClick={() => handleFoundationClick(fi)}
-                label={SUIT_SYMBOL[suit]}
-              />
+              <EmptyPile onClick={() => handleFoundationClick(fi)} label={SUIT_SYMBOL[suit]} />
             )}
           </div>
         ))}
@@ -173,6 +325,7 @@ export function SolitaireGame({ chainData }: Props) {
           return (
             <div
               key={ci}
+              ref={el => { tableauRefs.current[ci] = el; }}
               style={{ width: CARD_W, height: colHeight, flexShrink: 0, position: 'relative' }}
             >
               {col.length === 0 ? (
@@ -183,6 +336,7 @@ export function SolitaireGame({ chainData }: Props) {
                     selection?.source === 'tableau' &&
                     selection.col === ci &&
                     selection.cardIdx <= idx;
+                  const isDimmed = isDraggedTableau(ci, idx);
                   return (
                     <div
                       key={card.id}
@@ -192,11 +346,19 @@ export function SolitaireGame({ chainData }: Props) {
                         width: CARD_W,
                         height: CARD_H,
                         zIndex: idx,
+                        opacity: isDimmed ? 0.25 : 1,
+                        touchAction: 'none',
                       }}
+                      onPointerDown={card.faceUp ? e => startDrag(
+                        e,
+                        { type: 'tableau', col: ci, cardIdx: idx },
+                        col.slice(idx),
+                        () => handleTableauClick(ci, idx),
+                      ) : undefined}
                     >
                       <CardView
                         card={card}
-                        onClick={() => handleTableauClick(ci, idx)}
+                        onClick={card.faceUp ? undefined : () => handleTableauClick(ci, idx)}
                         selected={isSelected}
                       />
                     </div>
@@ -208,7 +370,7 @@ export function SolitaireGame({ chainData }: Props) {
         })}
       </div>
 
-      {/* Bottom controls */}
+      {/* Controls */}
       <div className="flex items-center justify-between mt-1">
         <span className="text-white/30 text-xs font-mono">{game.moves} MOVES</span>
         <div className="flex gap-2">
@@ -234,14 +396,12 @@ export function SolitaireGame({ chainData }: Props) {
             <div className="text-6xl font-black text-white tracking-tighter mb-2">YOU WIN</div>
             <div className="text-white/40 text-sm mb-1">{game.moves} MOVES</div>
             <div className="text-white/40 text-xs mb-8">TODAY&apos;S DECK: {chainData.label}</div>
-            <div className="flex gap-3 justify-center">
-              <button
-                onClick={resetGame}
-                className="px-6 py-3 rounded-full font-black text-sm bg-white text-black hover:bg-white/90 transition-all"
-              >
-                PLAY AGAIN
-              </button>
-            </div>
+            <button
+              onClick={resetGame}
+              className="px-6 py-3 rounded-full font-black text-sm bg-white text-black hover:bg-white/90 transition-all"
+            >
+              PLAY AGAIN
+            </button>
           </div>
         </div>
       )}
