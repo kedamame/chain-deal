@@ -2,23 +2,8 @@ import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
 
-const CORAL = '#F4654A';
-const AMBER = '#F5B340';
-const BLUE  = '#7BCBD4';
-const GREEN = '#4DB87A';
-
-// Card: 220x310, fanned from bottom-center
-// 4 cards offset horizontally with slight vertical stagger
-const CARDS = [
-  { color: CORAL, rank: 'A', x: 60,  y: 420 },
-  { color: AMBER, rank: 'K', x: 250, y: 350 },
-  { color: BLUE,  rank: 'Q', x: 440, y: 350 },
-  { color: GREEN, rank: 'J', x: 630, y: 420 },
-];
-
-const W = 220;
-const H = 310;
-const R = 28;
+const BG = '#F5B340'; // amber background — matches qude.audio reference card style
+const INK = '#111111';
 
 export async function GET() {
   return new ImageResponse(
@@ -28,70 +13,102 @@ export async function GET() {
           width: '100%',
           height: '100%',
           display: 'flex',
-          background: '#111111',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: BG,
           position: 'relative',
         }}
       >
-        {/* Face-down card stack top-left — signals "stock pile" */}
-        <div style={{ position: 'absolute', top: 56, left: 56, width: 110, height: 154, borderRadius: 14, background: '#222222', border: '2px solid rgba(255,255,255,0.12)', display: 'flex' }} />
-        <div style={{ position: 'absolute', top: 62, left: 62, width: 110, height: 154, borderRadius: 14, background: '#1a1a1a', border: '2px solid rgba(255,255,255,0.08)', display: 'flex' }} />
-        <div
-          style={{
-            position: 'absolute', top: 68, left: 68,
-            width: 110, height: 154, borderRadius: 14,
-            background: '#161616', border: '2px solid rgba(255,255,255,0.15)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}
-        >
-          <div style={{ fontSize: 28, fontWeight: 900, color: 'rgba(255,255,255,0.15)', display: 'flex' }}>CD</div>
-        </div>
-
-        {/* 4 fanned face-up cards */}
-        {CARDS.map((c) => (
-          <div
-            key={c.rank}
-            style={{
-              position: 'absolute',
-              left: c.x,
-              top: c.y,
-              width: W,
-              height: H,
-              borderRadius: R,
-              background: c.color,
-              display: 'flex',
-              flexDirection: 'column',
-              paddingTop: 18,
-              paddingLeft: 20,
-              paddingRight: 20,
-              paddingBottom: 18,
-            }}
-          >
-            {/* Rank top-left */}
-            <div style={{ fontSize: 72, fontWeight: 900, color: '#111111', lineHeight: 1, display: 'flex' }}>
-              {c.rank}
-            </div>
-            {/* Center rank large */}
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ fontSize: 120, fontWeight: 900, color: 'rgba(0,0,0,0.15)', display: 'flex' }}>
-                {c.rank}
-              </div>
-            </div>
-          </div>
-        ))}
-
-        {/* Bottom label */}
+        {/* ── Solitaire tableau icon ── */}
+        {/* Foundation row: 4 small card outlines at top */}
         <div
           style={{
             position: 'absolute',
-            bottom: 56,
+            top: 168,
+            left: 0,
+            right: 0,
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 24,
+          }}
+        >
+          {['A', 'A', 'A', 'A'].map((_, i) => (
+            <div
+              key={i}
+              style={{
+                width: 96,
+                height: 136,
+                borderRadius: 14,
+                border: `5px solid ${INK}`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <div style={{ fontSize: 44, fontWeight: 900, color: INK, display: 'flex' }}>A</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Tableau columns: classic klondike staircase */}
+        {/* Col 1: 1 face-up card */}
+        {/* Col 2: 1 face-down + 1 face-up */}
+        {/* Col 3: 2 face-down + 1 face-up */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 368,
+            left: 0,
+            right: 0,
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 40,
+            alignItems: 'flex-start',
+          }}
+        >
+          {/* Column 1 */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0, width: 150 }}>
+            <div style={{ width: 150, height: 210, borderRadius: 20, background: INK, display: 'flex', alignItems: 'flex-start', paddingTop: 16, paddingLeft: 18 }}>
+              <div style={{ fontSize: 72, fontWeight: 900, color: BG, lineHeight: 1, display: 'flex' }}>K</div>
+            </div>
+          </div>
+
+          {/* Column 2 */}
+          <div style={{ display: 'flex', flexDirection: 'column', width: 150 }}>
+            {/* face-down */}
+            <div style={{ width: 150, height: 52, borderRadius: 20, background: INK, display: 'flex', marginBottom: -32 }} />
+            {/* face-up */}
+            <div style={{ width: 150, height: 210, borderRadius: 20, background: INK, display: 'flex', alignItems: 'flex-start', paddingTop: 16, paddingLeft: 18 }}>
+              <div style={{ fontSize: 72, fontWeight: 900, color: BG, lineHeight: 1, display: 'flex' }}>Q</div>
+            </div>
+          </div>
+
+          {/* Column 3 */}
+          <div style={{ display: 'flex', flexDirection: 'column', width: 150 }}>
+            {/* face-down 1 */}
+            <div style={{ width: 150, height: 52, borderRadius: 20, background: INK, display: 'flex', marginBottom: -32 }} />
+            {/* face-down 2 */}
+            <div style={{ width: 150, height: 52, borderRadius: 20, background: INK, display: 'flex', marginBottom: -32, opacity: 0.7 }} />
+            {/* face-up */}
+            <div style={{ width: 150, height: 210, borderRadius: 20, background: INK, display: 'flex', alignItems: 'flex-start', paddingTop: 16, paddingLeft: 18 }}>
+              <div style={{ fontSize: 72, fontWeight: 900, color: BG, lineHeight: 1, display: 'flex' }}>J</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom wordmark */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 80,
             left: 0,
             right: 0,
             display: 'flex',
             justifyContent: 'center',
           }}
         >
-          <div style={{ fontSize: 52, fontWeight: 900, color: 'rgba(255,255,255,0.25)', letterSpacing: 12, display: 'flex' }}>
-            SOLITAIRE
+          <div style={{ fontSize: 44, fontWeight: 900, color: INK, letterSpacing: 10, display: 'flex' }}>
+            CHAIN DEAL
           </div>
         </div>
       </div>
