@@ -54,6 +54,7 @@ export function SolitaireGame({ chainData }: Props) {
   const [ghost, setGhost] = useState<GhostState | null>(null);
 
   const dragRef = useRef<DragRef | null>(null);
+  const lastTapRef = useRef<{ key: string; time: number } | null>(null);
   const gameRef = useRef(game);
   gameRef.current = game;
 
@@ -142,6 +143,31 @@ export function SolitaireGame({ chainData }: Props) {
     };
   }, [update, getDropTarget]);
 
+  const autoMoveCard = (source: DragSource) => {
+    setSelection(null);
+    const g = gameRef.current;
+    if (source.type === 'waste') {
+      let next = moveWasteToFoundation(g);
+      if (next !== g) { update(next); return; }
+      for (let c = 0; c < 7; c++) {
+        next = moveWasteToTableau(g, c);
+        if (next !== g) { update(next); return; }
+      }
+    } else {
+      const { col, cardIdx } = source;
+      const topIdx = g.tableau[col].length - 1;
+      if (cardIdx === topIdx) {
+        const next = moveTableauToFoundation(g, col);
+        if (next !== g) { update(next); return; }
+      }
+      for (let c = 0; c < 7; c++) {
+        if (c === col) continue;
+        const next = moveTableauToTableau(g, col, cardIdx, c);
+        if (next !== g) { update(next); return; }
+      }
+    }
+  };
+
   const startDrag = (
     e: React.PointerEvent,
     source: DragSource,
@@ -149,6 +175,15 @@ export function SolitaireGame({ chainData }: Props) {
     clickFn: () => void,
   ) => {
     e.preventDefault();
+    const key = source.type === 'waste' ? 'waste' : `${source.col}-${source.cardIdx}`;
+    const now = Date.now();
+    const last = lastTapRef.current;
+    if (last && last.key === key && now - last.time < 350) {
+      lastTapRef.current = null;
+      autoMoveCard(source);
+      return;
+    }
+    lastTapRef.current = { key, time: now };
     const rect = e.currentTarget.getBoundingClientRect();
     dragRef.current = {
       source, cards, clickFn,
