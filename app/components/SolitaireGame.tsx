@@ -231,8 +231,8 @@ export function SolitaireGame({ chainData }: Props) {
         <div
           style={{
             position: 'fixed',
-            left: ghost.x - ghost.offsetX,
-            top: ghost.y - ghost.offsetY,
+            left: ghost.x - CARD_W / 2,
+            top: ghost.y - CARD_H / 2,
             width: CARD_W,
             height: CARD_H + (ghost.cards.length - 1) * TABLEAU_OVERLAP,
             pointerEvents: 'none',
