@@ -13,7 +13,7 @@ export const SUITS: Suit[] = ['coral', 'amber', 'blue', 'green'];
 export const SUIT_COLORS: Record<Suit, string> = {
   coral: '#F4654A',
   amber: '#F5B340',
-  blue:  '#9B5DE5',
+  blue:  '#B07FEE',
   green: '#4DB87A',
 };
 

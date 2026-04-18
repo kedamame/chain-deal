@@ -442,7 +442,7 @@ export function SolitaireGame({ chainData }: Props) {
           {/* Cool group */}
           <div className="flex items-center gap-1.5">
             <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded-sm" style={{ background: '#9B5DE5' }} />
+              <div className="w-3 h-3 rounded-sm" style={{ background: '#B07FEE' }} />
               <div className="w-3 h-3 rounded-sm" style={{ background: '#4DB87A' }} />
             </div>
             <span className="text-[9px] font-bold tracking-wider" style={{ color: 'rgba(255,255,255,0.3)' }}>COOL</span>
@@ -452,9 +452,9 @@ export function SolitaireGame({ chainData }: Props) {
           {/* Per-suit detail */}
           <div className="flex flex-col gap-1">
             {[
-              { suit: 'coral', color: '#F4654A', on: ['#9B5DE5', '#4DB87A'] },
-              { suit: 'amber', color: '#F5B340', on: ['#9B5DE5', '#4DB87A'] },
-              { suit: 'blue',  color: '#9B5DE5', on: ['#F4654A', '#F5B340'] },
+              { suit: 'coral', color: '#F4654A', on: ['#B07FEE', '#4DB87A'] },
+              { suit: 'amber', color: '#F5B340', on: ['#B07FEE', '#4DB87A'] },
+              { suit: 'blue',  color: '#B07FEE', on: ['#F4654A', '#F5B340'] },
               { suit: 'green', color: '#4DB87A', on: ['#F4654A', '#F5B340'] },
             ].map(row => (
               <div key={row.suit} className="flex items-center gap-1">

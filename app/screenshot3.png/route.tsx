@@ -4,7 +4,7 @@ export const runtime = 'edge';
 
 const CORAL  = '#F4654A';
 const AMBER  = '#F5B340';
-const BLUE   = '#9B5DE5';
+const BLUE   = '#B07FEE';
 const GREEN  = '#4DB87A';
 
 export async function GET() {
