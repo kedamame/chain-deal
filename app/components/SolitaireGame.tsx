@@ -425,6 +425,50 @@ export function SolitaireGame({ chainData }: Props) {
         </div>
       </div>
 
+      {/* Suit pairing reference */}
+      <div className="rounded-lg border border-white/10 bg-white/5 px-3 py-2.5">
+        <div className="text-white/25 text-[9px] font-bold tracking-widest mb-2">PLACE ON OPPOSITE GROUP</div>
+        <div className="flex items-center gap-2">
+          {/* Warm group */}
+          <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 rounded-sm" style={{ background: '#F4654A' }} />
+              <div className="w-3 h-3 rounded-sm" style={{ background: '#F5B340' }} />
+            </div>
+            <span className="text-[9px] font-bold tracking-wider" style={{ color: 'rgba(255,255,255,0.3)' }}>WARM</span>
+          </div>
+          {/* Arrow */}
+          <span className="text-white/20 text-xs font-bold">↔</span>
+          {/* Cool group */}
+          <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 rounded-sm" style={{ background: '#7BCBD4' }} />
+              <div className="w-3 h-3 rounded-sm" style={{ background: '#4DB87A' }} />
+            </div>
+            <span className="text-[9px] font-bold tracking-wider" style={{ color: 'rgba(255,255,255,0.3)' }}>COOL</span>
+          </div>
+          {/* Separator */}
+          <div className="flex-1" />
+          {/* Per-suit detail */}
+          <div className="flex flex-col gap-1">
+            {[
+              { suit: 'coral', color: '#F4654A', on: ['#7BCBD4', '#4DB87A'] },
+              { suit: 'amber', color: '#F5B340', on: ['#7BCBD4', '#4DB87A'] },
+              { suit: 'blue',  color: '#7BCBD4', on: ['#F4654A', '#F5B340'] },
+              { suit: 'green', color: '#4DB87A', on: ['#F4654A', '#F5B340'] },
+            ].map(row => (
+              <div key={row.suit} className="flex items-center gap-1">
+                <div className="w-2.5 h-2.5 rounded-[3px]" style={{ background: row.color }} />
+                <span className="text-white/20 text-[8px]">on</span>
+                {row.on.map(c => (
+                  <div key={c} className="w-2.5 h-2.5 rounded-[3px]" style={{ background: c }} />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Win overlay */}
       {won && (
         <WinOverlay
