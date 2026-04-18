@@ -64,8 +64,8 @@ export async function GET() {
           <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start' }}>
             <div style={{ width: 80, height: 80, borderRadius: 12, background: BLUE, flexShrink: 0, display: 'flex' }} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ fontSize: 40, fontWeight: 900, color: '#ffffff', letterSpacing: -1, display: 'flex' }}>4 SUIT COLORS</div>
-              <div style={{ fontSize: 28, fontWeight: 400, color: 'rgba(255,255,255,0.4)', display: 'flex' }}>Coral, Amber, Blue, Green - all unique to CHAIN DEAL</div>
+              <div style={{ fontSize: 40, fontWeight: 900, color: '#ffffff', letterSpacing: -1, display: 'flex' }}>WARM vs COOL SUITS</div>
+              <div style={{ fontSize: 28, fontWeight: 400, color: 'rgba(255,255,255,0.4)', display: 'flex' }}>Coral+Amber (warm) alternate with Blue+Green (cool)</div>
             </div>
           </div>
 

@@ -17,12 +17,12 @@ export const SUIT_COLORS: Record<Suit, string> = {
   green: '#4DB87A',
 };
 
-// coral/green = "red" group, amber/blue = "black" group for alternating rule
-export const SUIT_GROUP: Record<Suit, 'red' | 'black'> = {
-  coral: 'red',
-  green: 'red',
-  amber: 'black',
-  blue:  'black',
+// coral/amber = warm group, blue/green = cool group for alternating rule
+export const SUIT_GROUP: Record<Suit, 'warm' | 'cool'> = {
+  coral: 'warm',
+  amber: 'warm',
+  blue:  'cool',
+  green: 'cool',
 };
 
 export const RANK_LABEL: Record<Rank, string> = {
