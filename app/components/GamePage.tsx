@@ -1,11 +1,18 @@
 'use client';
 
+import { useEffect } from 'react';
 import { SolitaireGame } from './SolitaireGame';
 import { SUIT_COLORS, SUITS } from '@/app/lib/deck';
 import { ChainData, getLabelColor } from '@/app/lib/types';
 
 export function GamePage({ chainData }: { chainData: ChainData }) {
   const accentColor = getLabelColor(chainData.label);
+
+  useEffect(() => {
+    import('@farcaster/miniapp-sdk').then(({ sdk }) => {
+      sdk.actions.ready();
+    }).catch(() => {});
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#111111' }}>
