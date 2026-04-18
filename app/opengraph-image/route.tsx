@@ -4,8 +4,8 @@ import type { ReactElement } from 'react';
 export const runtime = 'edge';
 
 const BG    = '#111111';
-const CORAL = '#E63946';
-const AMBER = '#F5C518';
+const CORAL = '#F4654A';
+const AMBER = '#F5B340';
 const BLUE  = '#9B5DE5';
 const GREEN = '#4DB87A';
 const BACK  = 'repeating-linear-gradient(45deg,#1e1e1e 0,#1e1e1e 5px,#161616 5px,#161616 14px)';

@@ -11,8 +11,8 @@ export interface Card {
 export const SUITS: Suit[] = ['coral', 'amber', 'blue', 'green'];
 
 export const SUIT_COLORS: Record<Suit, string> = {
-  coral: '#E63946',
-  amber: '#F5C518',
+  coral: '#F4654A',
+  amber: '#F5B340',
   blue:  '#9B5DE5',
   green: '#4DB87A',
 };
