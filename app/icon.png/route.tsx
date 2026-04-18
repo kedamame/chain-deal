@@ -2,8 +2,45 @@ import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
 
-const BG = '#F5B340'; // amber background — matches qude.audio reference card style
+const BG  = '#F5B340';
 const INK = '#111111';
+
+// Card dimensions (enlarged)
+const FW = 140; // foundation card width
+const FH = 196; // foundation card height
+const FR = 18;  // foundation border-radius
+const FB = 7;   // border width
+
+const TW = 200; // tableau card width
+const TH = 280; // tableau card height
+const TR = 24;
+const PEEK = 62; // face-down peek height
+
+// Vertical composition: foundation(196) + gap(44) + tableau(62+62+280=404) = 644
+// Center: (1024-644)/2 = 190
+const FY = 190;
+const TY = FY + FH + 44;
+
+// Horizontal: foundation 4×140+3×22 = 626 → xF=(1024-626)/2=199
+//             tableau   3×200+2×40 = 680 → xT=(1024-680)/2=172
+const FX = (1024 - (4 * FW + 3 * 22)) / 2;
+const TX = (1024 - (3 * TW + 2 * 40)) / 2;
+
+const card = (x: number, y: number, w: number, h: number, r: number, filled: boolean) => (
+  <div
+    style={{
+      position: 'absolute',
+      left: x,
+      top: y,
+      width: w,
+      height: h,
+      borderRadius: r,
+      background: filled ? INK : BG,
+      border: `${FB}px solid ${INK}`,
+      display: 'flex',
+    }}
+  />
+);
 
 export async function GET() {
   return new ImageResponse(
@@ -13,104 +50,24 @@ export async function GET() {
           width: '100%',
           height: '100%',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
           background: BG,
           position: 'relative',
         }}
       >
-        {/* ── Solitaire tableau icon ── */}
-        {/* Foundation row: 4 small card outlines at top */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 168,
-            left: 0,
-            right: 0,
-            display: 'flex',
-            justifyContent: 'center',
-            gap: 24,
-          }}
-        >
-          {['A', 'A', 'A', 'A'].map((_, i) => (
-            <div
-              key={i}
-              style={{
-                width: 96,
-                height: 136,
-                borderRadius: 14,
-                border: `5px solid ${INK}`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <div style={{ fontSize: 44, fontWeight: 900, color: INK, display: 'flex' }}>A</div>
-            </div>
-          ))}
-        </div>
+        {/* Foundation row: 4 outlined cards (same color as BG) */}
+        {[0, 1, 2, 3].map(i => card(FX + i * (FW + 22), FY, FW, FH, FR, false))}
 
-        {/* Tableau columns: classic klondike staircase */}
-        {/* Col 1: 1 face-up card */}
-        {/* Col 2: 1 face-down + 1 face-up */}
-        {/* Col 3: 2 face-down + 1 face-up */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 368,
-            left: 0,
-            right: 0,
-            display: 'flex',
-            justifyContent: 'center',
-            gap: 40,
-            alignItems: 'flex-start',
-          }}
-        >
-          {/* Column 1 */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 0, width: 150 }}>
-            <div style={{ width: 150, height: 210, borderRadius: 20, background: INK, display: 'flex', alignItems: 'flex-start', paddingTop: 16, paddingLeft: 18 }}>
-              <div style={{ fontSize: 72, fontWeight: 900, color: BG, lineHeight: 1, display: 'flex' }}>K</div>
-            </div>
-          </div>
+        {/* Tableau col 1: 1 outlined card */}
+        {card(TX, TY, TW, TH, TR, false)}
 
-          {/* Column 2 */}
-          <div style={{ display: 'flex', flexDirection: 'column', width: 150 }}>
-            {/* face-down */}
-            <div style={{ width: 150, height: 52, borderRadius: 20, background: INK, display: 'flex', marginBottom: -32 }} />
-            {/* face-up */}
-            <div style={{ width: 150, height: 210, borderRadius: 20, background: INK, display: 'flex', alignItems: 'flex-start', paddingTop: 16, paddingLeft: 18 }}>
-              <div style={{ fontSize: 72, fontWeight: 900, color: BG, lineHeight: 1, display: 'flex' }}>Q</div>
-            </div>
-          </div>
+        {/* Tableau col 2: 1 filled peek + 1 outlined */}
+        {card(TX + TW + 40, TY,        TW, PEEK, TR, true)}
+        {card(TX + TW + 40, TY + PEEK, TW, TH,   TR, false)}
 
-          {/* Column 3 */}
-          <div style={{ display: 'flex', flexDirection: 'column', width: 150 }}>
-            {/* face-down 1 */}
-            <div style={{ width: 150, height: 52, borderRadius: 20, background: INK, display: 'flex', marginBottom: -32 }} />
-            {/* face-down 2 */}
-            <div style={{ width: 150, height: 52, borderRadius: 20, background: INK, display: 'flex', marginBottom: -32, opacity: 0.7 }} />
-            {/* face-up */}
-            <div style={{ width: 150, height: 210, borderRadius: 20, background: INK, display: 'flex', alignItems: 'flex-start', paddingTop: 16, paddingLeft: 18 }}>
-              <div style={{ fontSize: 72, fontWeight: 900, color: BG, lineHeight: 1, display: 'flex' }}>J</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom wordmark */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 80,
-            left: 0,
-            right: 0,
-            display: 'flex',
-            justifyContent: 'center',
-          }}
-        >
-          <div style={{ fontSize: 44, fontWeight: 900, color: INK, letterSpacing: 10, display: 'flex' }}>
-            CHAIN DEAL
-          </div>
-        </div>
+        {/* Tableau col 3: 2 filled peeks + 1 outlined */}
+        {card(TX + (TW + 40) * 2, TY,             TW, PEEK, TR, true)}
+        {card(TX + (TW + 40) * 2, TY + PEEK,      TW, PEEK, TR, true)}
+        {card(TX + (TW + 40) * 2, TY + PEEK * 2,  TW, TH,   TR, false)}
       </div>
     ),
     { width: 1024, height: 1024 }
