@@ -48,18 +48,18 @@ export function CardView({ card, onClick, onDragStart, draggable, selected, styl
       className={`relative w-full h-full rounded-lg cursor-pointer select-none overflow-hidden transition-transform active:scale-95 ${selected ? 'ring-2 ring-white scale-105' : ''}`}
     >
       {/* Top-left rank + symbol */}
-      <div className="absolute top-1 left-1.5 flex flex-col items-center leading-none">
-        <span className="text-black font-black text-xs leading-none">{label}</span>
-        <span className="text-black text-[9px] leading-none">{symbol}</span>
+      <div className="absolute top-1 left-1.5 flex flex-col items-start leading-none">
+        <span className="text-black font-black leading-none" style={{ fontSize: 15 }}>{label}</span>
+        <span className="text-black/70 font-bold leading-none" style={{ fontSize: 10 }}>{symbol}</span>
       </div>
-      {/* Center symbol */}
+      {/* Center rank */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-black/30 font-black" style={{ fontSize: 'clamp(16px, 4vw, 28px)' }}>{symbol}</span>
+        <span className="text-black/25 font-black leading-none" style={{ fontSize: 32 }}>{label}</span>
       </div>
       {/* Bottom-right (rotated) */}
-      <div className="absolute bottom-1 right-1.5 flex flex-col items-center leading-none rotate-180">
-        <span className="text-black font-black text-xs leading-none">{label}</span>
-        <span className="text-black text-[9px] leading-none">{symbol}</span>
+      <div className="absolute bottom-1 right-1.5 flex flex-col items-end leading-none rotate-180">
+        <span className="text-black font-black leading-none" style={{ fontSize: 15 }}>{label}</span>
+        <span className="text-black/70 font-bold leading-none" style={{ fontSize: 10 }}>{symbol}</span>
       </div>
     </div>
   );
