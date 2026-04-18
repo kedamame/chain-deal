@@ -13,7 +13,7 @@ export interface ChainData {
 }
 
 export function getLabelColor(label: string): string {
-  if (label === 'WILD') return '#F4654A';
-  if (label === 'ACTIVE') return '#F5B340';
+  if (label === 'WILD') return '#E63946';
+  if (label === 'ACTIVE') return '#F5C518';
   return '#4DB87A';
 }

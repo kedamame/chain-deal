@@ -2,9 +2,9 @@ import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
 
-const CORAL  = '#F4654A';
-const AMBER  = '#F5B340';
-const BLUE   = '#7BCBD4';
+const CORAL  = '#E63946';
+const AMBER  = '#F5C518';
+const BLUE   = '#9B5DE5';
 const GREEN  = '#4DB87A';
 
 export async function GET() {
@@ -65,7 +65,7 @@ export async function GET() {
             <div style={{ width: 80, height: 80, borderRadius: 12, background: BLUE, flexShrink: 0, display: 'flex' }} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div style={{ fontSize: 40, fontWeight: 900, color: '#ffffff', letterSpacing: -1, display: 'flex' }}>WARM vs COOL SUITS</div>
-              <div style={{ fontSize: 28, fontWeight: 400, color: 'rgba(255,255,255,0.4)', display: 'flex' }}>Coral+Amber (warm) alternate with Blue+Green (cool)</div>
+              <div style={{ fontSize: 28, fontWeight: 400, color: 'rgba(255,255,255,0.4)', display: 'flex' }}>Red+Yellow (warm) alternate with Purple+Green (cool)</div>
             </div>
           </div>
 

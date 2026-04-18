@@ -2,9 +2,9 @@ import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
 
-const CORAL  = '#F4654A';
-const AMBER  = '#F5B340';
-const BLUE   = '#7BCBD4';
+const CORAL  = '#E63946';
+const AMBER  = '#F5C518';
+const BLUE   = '#9B5DE5';
 const GREEN  = '#4DB87A';
 
 export async function GET() {

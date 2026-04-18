@@ -80,7 +80,7 @@ export function WinOverlay({ moves, label, date, onReset }: Props) {
               <div className="flex flex-col items-center gap-1">
                 <div
                   className="text-7xl font-black tracking-tighter leading-none"
-                  style={{ color: label === 'WILD' ? '#F4654A' : label === 'ACTIVE' ? '#F5B340' : '#4DB87A' }}
+                  style={{ color: label === 'WILD' ? '#E63946' : label === 'ACTIVE' ? '#F5C518' : '#4DB87A' }}
                 >
                   {displayClears}
                 </div>
@@ -95,7 +95,7 @@ export function WinOverlay({ moves, label, date, onReset }: Props) {
                   {isRecording ? 'RECORDING...' : `TOTAL CLEARS: ${onChainClears}`}
                 </div>
                 {writeError && (
-                  <div className="text-[#F4654A] text-[10px] tracking-wide">TX FAILED</div>
+                  <div className="text-[#E63946] text-[10px] tracking-wide">TX FAILED</div>
                 )}
               </div>
             )}
@@ -109,7 +109,7 @@ export function WinOverlay({ moves, label, date, onReset }: Props) {
               disabled={isRecording}
               className="w-full py-3 rounded-full font-black text-sm tracking-wider transition-all"
               style={{
-                background: label === 'WILD' ? '#F4654A' : label === 'ACTIVE' ? '#F5B340' : '#4DB87A',
+                background: label === 'WILD' ? '#E63946' : label === 'ACTIVE' ? '#F5C518' : '#4DB87A',
                 color: '#111111',
                 opacity: isRecording ? 0.6 : 1,
               }}
