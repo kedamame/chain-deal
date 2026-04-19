@@ -10,7 +10,7 @@ function AutoConnect() {
   const connectors = useConnectors();
 
   useEffect(() => {
-    const connector = connectors.find(c => c.id === 'farcasterMiniApp');
+    const connector = connectors.find(c => c.id === 'farcaster');
     if (connector) connect({ connector });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
