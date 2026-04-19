@@ -68,15 +68,21 @@ export function SolitaireGame({ chainData }: Props) {
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
+    let timer: ReturnType<typeof setTimeout>;
+    let lastW = 0;
     const observer = new ResizeObserver(([entry]) => {
-      const w = entry.contentRect.width;
-      // 7 cols + 6 gaps, subtract px-2 (8px each side)
-      const available = w - 16;
-      const computed = Math.floor((available - 6 * COL_GAP) / 7);
-      setCardW(Math.max(36, Math.min(52, computed)));
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        const w = entry.contentRect.width;
+        if (Math.abs(w - lastW) < 2) return; // ignore sub-2px noise
+        lastW = w;
+        const available = w - 16; // subtract px-2 padding (8px each side)
+        const computed = Math.floor((available - 6 * COL_GAP) / 7);
+        setCardW(Math.max(36, Math.min(52, computed)));
+      }, 50);
     });
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => { clearTimeout(timer); observer.disconnect(); };
   }, []);
 
   const update = useCallback((next: GameState) => {
@@ -222,7 +228,7 @@ export function SolitaireGame({ chainData }: Props) {
     setSelection(s => s?.source === 'waste' ? null : { source: 'waste' });
   };
 
-  const handleFoundationClick = (fi: number) => {
+  const handleFoundationClick = (_fi: number) => {
     if (selection?.source === 'waste') update(moveWasteToFoundation(game));
     else if (selection?.source === 'tableau') update(moveTableauToFoundation(game, selection.col));
     setSelection(null);

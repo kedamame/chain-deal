@@ -18,7 +18,12 @@ body {
   background: #111111;
   color: #ffffff;
   font-family: 'Barlow Condensed', 'DM Sans', system-ui, sans-serif;
-  overflow-x: hidden;
+  overflow: hidden;
+}
+
+html, body {
+  height: 100%;
+  overscroll-behavior: none;
 }
 
 @keyframes marquee {
